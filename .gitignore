@@ -1,0 +1,5 @@
+/src/main/resources/application.properties
+/.idea
+/target
+.DS_Store
+fragmentTax.iml
