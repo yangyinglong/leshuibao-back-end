@@ -1,7 +1,10 @@
 项目介绍
 ```
-这是一个发票代开系统的后端，用户通过注册账号，就可以在这个系统上填写代开发票的基本信息，经过后台管理人员的审核之后，帮助用户开发票，然后邮寄给用户，实现了远程开发票的功能，解决了用户需要到一些店面亲自开发票的问题。
-从技术上，使用了 Spring boot 、 Mybatis 、 Jersey 等，接入了 支付宝支付、 微信支付、 阿里短信接口等，将各个功能包装成 api 提供给前端
+这是一个发票代开系统的后端，用户通过注册账号，就可以在这个系统上填写代开发票的基本信息，
+经过后台管理人员的审核之后，帮助用户开发票，然后邮寄给用户，实现了远程开发票的功能，解
+决了用户需要到一些店面亲自开发票的问题。
+从技术上，使用了 Spring boot 、 Mybatis 、 Jersey 等，接入了 支付宝支付、 微信支付、 
+阿里短信接口等，将各个功能包装成 api 提供给前端
 ```
 模块介绍
 ```
@@ -26,20 +29,50 @@
 	参数：LoginReqDto
 	返回：HashMap
 	描述：根据前端传过来的数据 LoginReqDto(userName, password, remeberPassword)，查询 user 表，
-			如果查到，则返回 ('200', UserRespDto)
-			如果没有查到，则返回（'400', "登录失败"）
-		  在查询 user 表的时候，根据 userName 查询，userName 可以是用户名，也可以是手机号码，首先根据用户名查询，如果没有查到，则根据手机号码查询，查询到的结果为 UserEntity，然后根据 UserEntity，创建 UserRespDto
-
+		如果查到，则返回 ('200', UserRespDto)
+		如果没有查到，则返回（'400', "登录失败"）
+		在查询 user 表的时候，根据 userName 查询，userName 可以是用户名，也可以是手机号码，首先根据用户名查询，如果没有查到，则根据手机号码查询，查询到的结果为 
+		UserEntity，然后根据 UserEntity，创建 UserRespDto
+		
 注册
 	接口：/api/authorize/register
 	参数：RegisterReqDto
 	返回：HashMap
-	描述：
+	描述：根据前端传过来的数据 RegisterReqDto(userName, phone, password, smsCode, smsId)，首先查询表 user，
+		判断该手机号码是否已被注册，如果已被注册，则返回(201, "老用户，请直接登录。或从：登录 -> 忘记密码 找回密码。")
+		否则根据 smsId 查询表 sms_log ,获取验证码与smsCode进行比较，如果不相等，则返回(300, "验证码不正确")
+		否则根据 registerReqDto 创建一个 UserEntity, 写入表 user，并返回(200, UserRespDto)
+
+登出
+	接口：/api/authorize/logout
+	参数：String
+	返回：HashMap
+	描述：//todo
+
+密码找回
+	接口：/api/authorize/passChange
+	参数：PasswdChangeReqDto
+	返回：HashMap
+	描述：根据 PasswdChangeReqDto(smsId, pass, phone, validatecode) 查询表 sms_log 得到 SmsLogEntity，如果能查到并且 
+		SmsLogEntity 的 smsCode 与 validatecode 相等，则根据 phone 更新表 user 的字段 password，返回 (200, "密码修改
+		成功!")，否则返回(201, "验证码验证错误，密码修改未成功！")
+
+短信发送
+	接口：/api/authorize/smsSend
+	参数：String phone
+	返回：HashMap
+	描述：首先在 com.leshuibao.fragmentTax.util.SmsUtil 中封装了阿里短信发送的函数，然后随机生成长度为24的一个字符串作为 smsKey
+		和 长度为6的整数字符串作为验证码 smsCode，然后循环调用 SendSmsResp = sendSms(phone, smsCode) 函数，判断 SendSmsResp 
+		的状态是否为 "OK"，如果是，则在表 sms_log 中增加一条记录，返回 (200, smsKey)，smsKey 的作用是用来在 sms_log 中查找 smsCode，
+		如果不是，循环5次，返回 (300, "短信发送失败")
 
 
 ```
 
+文件传输模块
+```
 
+```
 
 Bug修复记录
 ```
