@@ -5,8 +5,10 @@ import com.alipay.api.AlipayClient;
 import com.leshuibao.fragmentTax.dao.entity.ShoppingTrolleyEntity;
 import com.leshuibao.fragmentTax.dto.request.*;
 import com.leshuibao.fragmentTax.logicalModel.ITradingHallLogical;
+import com.leshuibao.fragmentTax.util.PropertiesUtil;
 import com.leshuibao.fragmentTax.util.UUIDUtil;
 import com.leshuibao.fragmentTax.viewModel.ITradingHallView;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,6 +17,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +39,8 @@ public class TradingHallAddController {
     private ITradingHallLogical tradingHallLogical;
 
     AlipayClient alipayClient = initAlipayClient();
+
+    private static final String IMAGE_PATH = PropertiesUtil.prop("img_path");
 
     @Path("/addOrder")
     @POST
@@ -256,6 +264,46 @@ public class TradingHallAddController {
         resp.put("r", "增加开票人信息失败");
         return resp;
     }
+
+    @Path("/editPayee")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> editPayee(PayeeEditReqDto payeeEditReqDto) {
+
+        Map<String, Object> resp = new HashMap<>();
+        try {
+            tradingHallLogical.updatePayeeEntity(payeeEditReqDto);
+            tradingHallLogical.updatePhoto(payeeEditReqDto);
+            resp.put("c", 200);
+            resp.put("r", "修改开票人信息成功");
+            return resp;
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        resp.put("c", 400);
+        resp.put("r", "修改开票人信息失败");
+        return resp;
+    }
+
+    @Path("/deletePayee")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> deletePayee(PayeeDeleteReqDto payeeDeleteReqDto) {
+
+        Map<String, Object> resp = new HashMap<>();
+        try {
+            tradingHallLogical.deletePayeeEntityByUserId(payeeDeleteReqDto);
+            resp.put("c", 200);
+            resp.put("r", "删除成功");
+            return resp;
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        resp.put("c", 400);
+        resp.put("r", "删除失败");
+        return resp;
+    }
+
 
     /**
      * 获取支付状态

@@ -78,7 +78,7 @@ public interface IOrderMapper {
     @Select("SELECT `id`, `trade_name`, `tax_rate`, `payer_id`, `payee_id`, `address_id`, `express_company`, `express_fee`, `express_tracking_code`, `total_amount`, `total_tax_amout`, `audit_status`, `auditer`, `status`, `memo`, `created_time`, `changed_lasttime`, `reject_reason`, `reject_desc`" +
             "FROM `order` where `payee_id` = #{payeeId} and `audit_status` in " +
             "(${auditStatus})" +
-            "order by `changed_lasttime` desc limit #{startNum}, #{pageRange}")
+            "order by `changed_lasttime`")
     @Results({
             @Result(property = "id", column = "id"),
             @Result(property = "tradeName", column = "trade_name"),

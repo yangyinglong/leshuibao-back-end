@@ -4,9 +4,7 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.google.zxing.WriterException;
 import com.leshuibao.fragmentTax.dao.entity.*;
-import com.leshuibao.fragmentTax.dto.request.OrderReqDto;
-import com.leshuibao.fragmentTax.dto.request.RegisterReqDto;
-import com.leshuibao.fragmentTax.dto.request.ShowOrdersReqDto;
+import com.leshuibao.fragmentTax.dto.request.*;
 import com.leshuibao.fragmentTax.dto.response.ShowOrderDtlRespDto;
 import com.leshuibao.fragmentTax.dto.response.ShowOrdersRespDto;
 import com.leshuibao.fragmentTax.dto.response.UserRespDto;
@@ -74,4 +72,10 @@ public interface ITradingHallLogical {
     boolean createQrCode(String orderId, String codeUrl, int i) throws IOException, WriterException;
 
     boolean wxPayOrderEntityStatus(String orderId, Map<String,String> header, String paras) throws DocumentException;
+
+    void updatePayeeEntity(PayeeEditReqDto payeeEditReqDto);
+
+    void updatePhoto(PayeeEditReqDto payeeEditReqDto);
+
+    void deletePayeeEntityByUserId(PayeeDeleteReqDto payeeDeleteReqDto);
 }

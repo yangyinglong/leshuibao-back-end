@@ -51,10 +51,18 @@ public class SupplementController {
         FileUtils.copyInputStreamToFile(fileInputStream, new File(IMAGE_PATH + fileName));
     }
 
+    /**
+     * 前端请求图片，加随机数的原因是 修改开票人的时候，重新上传图片，如果是同样的请求参数，加载的是页面缓存，而不是重新请求服务器
+     * @param payeeId
+     * @param payeeName
+     * @param isFront
+     * @param randomDouble
+     * @return
+     */
     @GET
 //    @Consumes(MediaType.APPLICATION_OCTETd_STREAM)
     @Path("/printIC")
-    public Response printIC(@QueryParam("payeeId") String payeeId, @QueryParam("payeeName") String payeeName, @QueryParam("isFront") String isFront) {
+    public Response printIC(@QueryParam("payeeId") String payeeId, @QueryParam("payeeName") String payeeName, @QueryParam("isFront") String isFront, @QueryParam("randomInt") double randomDouble) {
         String fileName = payeeName + "@" + payeeId + "—" + isFront + ".jpg";
         StreamingOutput fileStream = new StreamingOutput() {
             @Override

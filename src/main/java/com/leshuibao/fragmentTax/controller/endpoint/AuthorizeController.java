@@ -2,6 +2,7 @@ package com.leshuibao.fragmentTax.controller.endpoint;
 
 
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
+import com.leshuibao.fragmentTax.dao.entity.SmsLogEntity;
 import com.leshuibao.fragmentTax.dao.entity.UserEntity;
 import com.leshuibao.fragmentTax.dto.request.LoginReqDto;
 import com.leshuibao.fragmentTax.dto.request.PasswdChangeReqDto;
@@ -108,9 +109,10 @@ public class AuthorizeController {
         }
 
         // 3，注册写入数据库
-        authorizeLogical.addUser(authorizeView.getUserEntity(registerReqDto));
+        UserEntity userEntity1 = authorizeView.getUserEntity(registerReqDto);
+        authorizeLogical.addUser(userEntity1);
         resp.put("c", 200);
-        resp.put("r", authorizeView.getUserResp(userEntity));
+        resp.put("r", authorizeView.getUserResp(userEntity1));
 
         return resp;
 
@@ -141,14 +143,16 @@ public class AuthorizeController {
     public Map<String, Object> passChange(PasswdChangeReqDto passwdChangeReqDto) {
 
         Map<String, Object> resp = new HashMap<>();
+        SmsLogEntity smsLogEntity = authorizeLogical.getSmsLogEntity(passwdChangeReqDto.getSmsId());
+        if (!FormatUtil.isEmpty(smsLogEntity)) {
+            if (passwdChangeReqDto.getValidatecode().equals(smsLogEntity.getSmsCode())) {
+                authorizeLogical.updatePassByPhone(passwdChangeReqDto.getPhone(), passwdChangeReqDto.getPass());
 
-        if (!FormatUtil.isEmpty(authorizeLogical.getSmsLogEntity(passwdChangeReqDto.getSmsId()))) {
-            authorizeLogical.updatePassByPhone(passwdChangeReqDto.getPhone(), passwdChangeReqDto.getPass());
+                resp.put("c", 200);
+                resp.put("r", "密码修改成功！");
 
-            resp.put("c", 200);
-            resp.put("r", "密码修改成功！");
-
-            return resp;
+                return resp;
+            }
         }
         resp.put("c", 200);
         resp.put("r", "验证码验证错误，密码修改未成功！");

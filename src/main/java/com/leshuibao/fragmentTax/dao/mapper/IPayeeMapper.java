@@ -39,7 +39,7 @@ public interface IPayeeMapper {
     })
     PayeeEntity queryByKey(@Param("id") String id);
 
-    @Select("SELECT `id`, `payee_name`, `payee_cidno`, `payee_cid_url`, `payee_type`, `user_id`, `status`, `memo`, `created_time`, `changed_lasttime` FROM `payee` WHERE `user_id` = #{user_id}")
+    @Select("SELECT `id`, `payee_name`, `payee_cidno`, `payee_cid_url`, `payee_type`, `user_id`, `status`, `memo`, `created_time`, `changed_lasttime` FROM `payee` WHERE `user_id` = #{user_id} and `status` = 0")
     @Results({
             @Result(property = "id", column = "id"),
             @Result(property = "payeeName", column = "payee_name"),
@@ -52,7 +52,7 @@ public interface IPayeeMapper {
             @Result(property = "createdTime", column = "created_time"),
             @Result(property = "changedLasttime", column = "changed_lasttime")
     })
-    List<PayeeEntity> queryByUserId(@Param("user_id") String user_id);
+    List<PayeeEntity> queryByUserId(@Param("user_id") String userId);
 
     @Insert("INSERT INTO `payee`(`id`, `payee_name`, `payee_cidno`, `payee_cid_url`, `payee_type`, `user_id`, `status`, `memo`, `created_time`) VALUES(#{id}, #{payeeName}, #{payeeCidno}, #{payeeCidUrl}, #{payeeType}, #{userId}, #{status}, #{memo}, #{createdTime})")
     void insert(PayeeEntity payeeEntity);
@@ -63,4 +63,9 @@ public interface IPayeeMapper {
     @Delete("DELETE FROM `payee` WHERE `id` = #{id}")
     void delete(@Param("id") String id);
 
+    @Update("UPDATE `payee` SET payee_name=#{payee_name}, payee_cidno=#{cid_no} WHERE `user_id` = #{user_id} and `payee_cidno` = #{old_cid_no}")
+    void updateByUseId(@Param("cid_no") String cidno, @Param("payee_name") String payeeName, @Param("old_cid_no") String oldCidno, @Param("user_id") String userId);
+
+    @Update("UPDATE `payee` SET status = 1 WHERE `user_id` = #{user_id} and `payee_cidno` = #{cid_no}")
+    void deleteByUserId(@Param("cid_no") String cidno, @Param("user_id") String userId);
 }

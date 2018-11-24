@@ -6,6 +6,8 @@ import com.alipay.api.AlipayClient;
 import com.google.zxing.WriterException;
 import com.leshuibao.fragmentTax.dao.entity.*;
 import com.leshuibao.fragmentTax.dao.mapper.*;
+import com.leshuibao.fragmentTax.dto.request.PayeeDeleteReqDto;
+import com.leshuibao.fragmentTax.dto.request.PayeeEditReqDto;
 import com.leshuibao.fragmentTax.dto.request.ShowOrdersReqDto;
 import com.leshuibao.fragmentTax.dto.response.ShowOrderDtlRespDto;
 import com.leshuibao.fragmentTax.dto.response.ShowOrdersRespDto;
@@ -40,6 +42,8 @@ public class TradingHallLogical implements ITradingHallLogical {
     IPayeeMapper payeeMapper;
     @Autowired
     IInvoiceDeliveryMapper iInvoiceDeliveryMapper;
+
+    private static final String IMAGE_PATH = PropertiesUtil.prop("img_path");
 
     @Override
     public void addOrderEntity(OrderEntity orderEntity) {
@@ -123,26 +127,29 @@ public class TradingHallLogical implements ITradingHallLogical {
     public List<ShowOrdersRespDto> getShowOrdersRespDtos(ShowOrdersReqDto showOrdersReqDto) {
 
         List<ShowOrdersRespDto> showOrdersRespDtos = new ArrayList<>();
-
+        int index = 0;
+        int startNum = (showOrdersReqDto.getStartPageNum()-1)*showOrdersReqDto.getPageRange();
         for (PayeeEntity payeeEntity : payeeMapper.queryByUserId(showOrdersReqDto.getUserId())) {
-
-//            String s = FormatUtil.strings2String(getIntAuditStatus(showOrdersReqDto.getAuditStatus()));
             for (OrderEntity orderEntity : orderMapper.queryByC1(
                     payeeEntity.getId(),
                     FormatUtil.strings2String(getIntAuditStatus(showOrdersReqDto.getAuditStatus())),
-                    (showOrdersReqDto.getStartPageNum() - 1) * showOrdersReqDto.getPageRange(),
+                    startNum,
                     showOrdersReqDto.getPageRange())) {
-                ShowOrdersRespDto showOrdersRespDto = new ShowOrdersRespDto();
-                showOrdersRespDto.setOrderId(orderEntity.getId());
-                showOrdersRespDto.setCreatedTime(orderEntity.getCreatedTime().substring(0, 10));
-                showOrdersRespDto.setPayeeName(payeeEntity.getPayeeName());
-                showOrdersRespDto.setTotalAmount(orderEntity.getTotalAmount());
+                if (index >= startNum && index < startNum + showOrdersReqDto.getPageRange()) {
+                    ShowOrdersRespDto showOrdersRespDto = new ShowOrdersRespDto();
+                    showOrdersRespDto.setOrderId(orderEntity.getId());
+                    showOrdersRespDto.setCreatedTime(orderEntity.getCreatedTime().substring(0, 10));
+                    showOrdersRespDto.setPayeeName(payeeEntity.getPayeeName());
+                    showOrdersRespDto.setTotalAmount(orderEntity.getTotalAmount());
 //                showOrdersRespDto.setAuditStatus(orderEntity.getAuditStatus());
-                showOrdersRespDto.setAuditStatus(getStrAuditStatus(orderEntity.getAuditStatus()));
-                showOrdersRespDto.setExpressCompany(orderEntity.getExpressCompany());
-                showOrdersRespDto.setExpressTrackingCode(orderEntity.getExpressTrackingCode());
-
-                showOrdersRespDtos.add(showOrdersRespDto);
+                    showOrdersRespDto.setAuditStatus(getStrAuditStatus(orderEntity.getAuditStatus()));
+                    showOrdersRespDto.setExpressCompany(orderEntity.getExpressCompany());
+                    showOrdersRespDto.setExpressTrackingCode(orderEntity.getExpressTrackingCode());
+                    showOrdersRespDtos.add(showOrdersRespDto);
+                } else if (index >= startNum + showOrdersReqDto.getPageRange()){
+                    break;
+                }
+                index ++;
             }
         }
 
@@ -152,24 +159,30 @@ public class TradingHallLogical implements ITradingHallLogical {
     @Override
     public List<ShowOrdersRespDto> getShowOrdersRespDtosForAdmin(ShowOrdersReqDto showOrdersReqDto) {
         List<ShowOrdersRespDto> showOrdersRespDtos = new ArrayList<>();
-
+        int index = 0;
+        int startNum = (showOrdersReqDto.getStartPageNum()-1)*showOrdersReqDto.getPageRange();
         for (PayeeEntity payeeEntity : payeeMapper.queryAll()) {
             for (OrderEntity orderEntity : orderMapper.queryByC1(
                     payeeEntity.getId(),
                     FormatUtil.strings2String(getIntAuditStatus(showOrdersReqDto.getAuditStatus())),
-                    (showOrdersReqDto.getStartPageNum() - 1) * showOrdersReqDto.getPageRange(),
+                    startNum,
                     showOrdersReqDto.getPageRange())) {
-                ShowOrdersRespDto showOrdersRespDto = new ShowOrdersRespDto();
-                showOrdersRespDto.setOrderId(orderEntity.getId());
-                showOrdersRespDto.setCreatedTime(orderEntity.getCreatedTime().substring(0, 10));
-                showOrdersRespDto.setPayeeName(payeeEntity.getPayeeName());
-                showOrdersRespDto.setTotalAmount(orderEntity.getTotalAmount());
+                if (index >= startNum && index < startNum + showOrdersReqDto.getPageRange()) {
+                    ShowOrdersRespDto showOrdersRespDto = new ShowOrdersRespDto();
+                    showOrdersRespDto.setOrderId(orderEntity.getId());
+                    showOrdersRespDto.setCreatedTime(orderEntity.getCreatedTime().substring(0, 10));
+                    showOrdersRespDto.setPayeeName(payeeEntity.getPayeeName());
+                    showOrdersRespDto.setTotalAmount(orderEntity.getTotalAmount());
 //                showOrdersRespDto.setAuditStatus(orderEntity.getAuditStatus());
-                showOrdersRespDto.setAuditStatus(getStrAuditStatus(orderEntity.getAuditStatus()));
-                showOrdersRespDto.setExpressCompany(orderEntity.getExpressCompany());
-                showOrdersRespDto.setExpressTrackingCode(orderEntity.getExpressTrackingCode());
+                    showOrdersRespDto.setAuditStatus(getStrAuditStatus(orderEntity.getAuditStatus()));
+                    showOrdersRespDto.setExpressCompany(orderEntity.getExpressCompany());
+                    showOrdersRespDto.setExpressTrackingCode(orderEntity.getExpressTrackingCode());
 
-                showOrdersRespDtos.add(showOrdersRespDto);
+                    showOrdersRespDtos.add(showOrdersRespDto);
+                } else if (index >= startNum + showOrdersReqDto.getPageRange()){
+                    break;
+                }
+                index ++;
             }
         }
 
@@ -282,6 +295,27 @@ public class TradingHallLogical implements ITradingHallLogical {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void updatePayeeEntity(PayeeEditReqDto payeeEditReqDto) {
+        payeeMapper.updateByUseId(payeeEditReqDto.getCidno(), payeeEditReqDto.getPayeeName(),
+                payeeEditReqDto.getOldCidno(), payeeEditReqDto.getUserId());
+        return;
+    }
+
+    @Override
+    public void updatePhoto(PayeeEditReqDto payeeEditReqDto) {
+        String oldName = payeeEditReqDto.getOldName() + "@" + payeeEditReqDto.getOldCidno();
+        String newName = payeeEditReqDto.getPayeeName() + "@" + payeeEditReqDto.getCidno();
+        FileUtil.rename(IMAGE_PATH, oldName + "—1.jpg", newName+ "—1.jpg");
+        FileUtil.rename(IMAGE_PATH, oldName + "—2.jpg", newName + "—2.jpg");
+
+    }
+
+    @Override
+    public void deletePayeeEntityByUserId(PayeeDeleteReqDto payeeDeleteReqDto) {
+        payeeMapper.deleteByUserId(payeeDeleteReqDto.getCidno(), payeeDeleteReqDto.getUserId());
     }
 
     private String[] getIntAuditStatus(String[] auditStatus) {

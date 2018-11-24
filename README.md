@@ -87,7 +87,7 @@
 	描述：调用 FileUtils.copyInputStreamToFile(fileInputStream, new File(IMAGE_PATH + fileName)) 写入文件 // todo
 
 下载身份证图片
-	接口：/api/authorize/printIC
+	接口：/api/suppliment/printIC
 	参数：@QueryParam("payeeId") String payeeId, 
 		 @QueryParam("payeeName") String payeeName, 
 		 @QueryParam("isFront") String isFront
@@ -112,13 +112,13 @@
                 .build();
 
 下载微信二维码
-	接口：/api/authorize/printQrImg
+	接口：/api/suppliment/printQrImg
 	参数：@QueryParam("orderId") String orderId
 	返回：Response
 	描述：根据 orderId 生成一个 fileName，后续跟 prinIC 相同
 
 下载 Excel
-	接口：/api/authorize/printOrder
+	接口：/api/suppliment/printOrder
 	参数：@QueryParam("orderId") String orderId
 	返回：Response
 	描述：首先根据 orderId 生成一个文件名 fileName，然后调用 genExcel(fileName, orderId) 生成一个 File，写入到文件中，
@@ -143,6 +143,12 @@
 8. 增加开票人
 9. 审核驳回
 10. 审核通过
+
+增加订单
+	接口：/api/tradingHall/printOrder
+	参数：OrderReqDto
+	返回：HashMap
+	描述：
 ```
 
 订单查询模块
@@ -158,6 +164,38 @@
 8. 查询订单（管理员）
 
 ```
+
+项目代码结构
+```
+|---src
+  |---main
+  	|---java
+  	  |---com.leshuibao
+  	    |---config
+  	      |---BaseMapper.java
+  	      |---MyBatisConfig.java
+  	      |---MyBatisMapperScannerConfig.java
+  	    |---fragmentTax
+  	      |---common
+  	      |---controller
+  	        |---config
+  	        |---endpoint
+  	          |---AuthorizeController.java
+  	          |---SupplementController.java
+  	          |---TradingHallAddController.java
+  	          |---TradingHallShowController.java
+  	      |---dao
+  	        |---entity
+  	        |---mapper
+  	      |---dto
+  	      |---logicalModel
+  	      |---util
+  	      |---viewModel
+  	      |---Application.java
+  	|---resources
+  	  |---application.properties
+```
+
 Bug修复记录
 ```
 1. 登录和注册的反馈框调整至中间 ok

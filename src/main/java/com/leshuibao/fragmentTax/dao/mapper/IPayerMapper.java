@@ -44,7 +44,6 @@ public interface IPayerMapper {
     })
     PayerEntity queryByKey(@Param("id") String id);
 
-    // todo 应返回list
     @Select("SELECT `id`, `payer_code`, `payer_name`, `user_id`, `payer_addr`, `payer_phone`, `payer_bank`, `payer_bank_no`, `status`, `payer_type`, `memo`, `create_time`, `changed_lasttime` FROM `payer` WHERE `user_id` = #{user_id}")
     @Results({
             @Result(property = "id", column = "id"),
@@ -62,6 +61,7 @@ public interface IPayerMapper {
             @Result(property = "changedLasttime", column = "changed_lasttime")
     })
     List<PayerEntity> queryByUserId(@Param("user_id") String user_id);
+
 
     @Insert("INSERT INTO `payer`(`id`, `payer_code`, `payer_name`, `user_id`, `payer_addr`, `payer_phone`, `payer_bank`, `payer_bank_no`, `status`, `payer_type`, `memo`, `create_time`) VALUES(#{id}, #{payerCode}, #{payerName}, #{userId}, #{payerAddr}, #{payerPhone}, #{payerBank}, #{payerBankNo}, #{status}, #{payerType}, #{memo}, #{createTime})")
     void insert(PayerEntity payerEntity);
